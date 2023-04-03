@@ -11,20 +11,40 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSOWRD}@cluster0.tdy11iu.mongodb.net/?retryWrites=true&w=majority`;
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tdy11iu.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-          const collection = client.db("test").collection("devices");
-          // perform actions on the collection object
-          console.log('database connected');
-          client.close();
-});
+
+async function run() {
+          try {
+                    await client.connect();
+                    const serviceCollection = client.db('gebiusCar').collection('services');
+
+                    app.get('/service', async (req, res) => {
+                              const query = {};
+                              const cursor = serviceCollection.find(query);
+                              const services = await cursor.toArray();
+                              res.send(services);
+                    });
+
+                    app.get('/service/:id', async (req, res) =>{
+                              const id = req.params.id;
+                              const query={_id: new ObjectId(id)};
+                              const service = await serviceCollection.findOne(query);
+                              res.send(service);
+                    })
+          }
+
+          finally {
+
+          }
+}
+run().catch(console.dir);
 
 
 
 app.get('/', (req, res) => {
-          res.send('Genius server is runnig')
+          res.send('Genius server is running')
 });
 
 app.listen(port, () => {
