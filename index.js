@@ -27,12 +27,19 @@ async function run() {
                               res.send(services);
                     });
 
-                    app.get('/service/:id', async (req, res) =>{
+                    app.get('/service/:id', async (req, res) => {
                               const id = req.params.id;
-                              const query={_id: new ObjectId(id)};
+                              const query = { _id: new ObjectId(id) };
                               const service = await serviceCollection.findOne(query);
                               res.send(service);
-                    })
+                    });
+
+                    // POST
+                    app.post('/service', async (req, res) => {
+                              const newService = req.body;
+                              const result = await serviceCollection.insertOne(newService);
+                              res.send(result);
+                    });
           }
 
           finally {
